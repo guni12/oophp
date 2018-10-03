@@ -1,0 +1,65 @@
+<?php
+
+namespace Guni\Dice;
+
+/**
+ * Showing off a standard class with methods and properties.
+ */
+class Dice
+{
+    /**
+     * @var int $side     The current dice side.
+     * @var int $sides    Number of sides of the dice.
+     * @var int $lastRoll 
+     */
+    private $side;
+    private $sides;
+
+
+
+    /**
+     * Constructor to initiate the object with current game settings,
+     * if available. Randomize the current number if no value is sent in.
+     *
+     * @param int $number The current result from dice roll.
+     * @param int $sides  Number of sides, default 6.
+     */
+
+    public function __construct(int $sides = 6)
+    {
+        $this->side = mt_rand(1,$sides);
+        $this->sides = $sides;
+    }
+
+
+    /**
+     * Randomize the secret number between 1 and 100 to initiate a new game.
+     *
+     * @return int as the random number when dice is rolled
+     */
+    public function random()
+    {
+        $this->side = mt_rand(1,$this->sides);
+        return $this->side;
+    }
+
+
+    /**
+     * Get the side number.
+     * @return int as the side number.
+     */
+    public function side()
+    {
+        return $this->side;
+    }
+
+
+    /**
+     * Roll the dice.
+     * @return int as the side number.
+     */
+    public function lastRoll()
+    {
+        return $this->side;
+    }
+}

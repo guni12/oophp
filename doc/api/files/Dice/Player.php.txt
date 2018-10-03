@@ -1,0 +1,18 @@
+<?php
+
+namespace Guni\Dice;
+
+/**
+ * Showing off a standard class with methods and properties.
+ */
+class Player
+{
+    /**
+     * @var int $side     The current dice side.
+     * @var int $sides    Number of sides of the dice.
+     * @var int $lastRoll 
+     */
+    private $side;
+    private $sides;
+}
+
