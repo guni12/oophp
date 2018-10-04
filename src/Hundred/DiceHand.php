@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class DiceHand
+ *
+ * @package     Hundred
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Guni\Hundred;
 
 /**
@@ -9,11 +17,22 @@ class DiceHand
 {
     /**
      * @var Dice $dices   Array consisting of dices.
-     * @var int  $values  Array consisting of last roll of the dices.
      */
     private $dices;
+
+    /**
+     * @var int  $values  Array consisting of last roll of the dices.
+     */
     private $values;
+
+    /**
+     * @var string  $graphs  Array consisting of last roll of the dices as strings.
+     */
     private $graphs;
+
+    /**
+     * @var boolean $check  True if dicehand contains a one.
+     */
     private $check = false;
 
     /**

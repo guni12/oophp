@@ -87,14 +87,16 @@ class HundredCreateObjectTest extends TestCase
 
         $anna->setCurrentPlayer();
         $res = $players->playButton("Anna");
-        $exp = "<br />Secondplayer Anna<br />This round: 0<br />Total: 0<br />";
+        //$exp = "<br />Secondplayer Anna<br />This round: 0<br />Total: 0<br />";
+        $exp = "<i class='dice-sprite dice-";
         $this->assertStringStartsWith($exp, $res);
 
 
         $computer->setCurrentPlayer();
         $computer->setScore(101);
         $res = $players->playButton("Computer");
-        $exp = "<br /><br /><br /><br /><br /><br />Computer makes 5 rounds if it doesn't hit a one.<br />Firstplayer Computer<br />This round: 0<br />Total: 101<br />";
+        //$exp = "<br /><br /><br /><br /><br /><br />Computer makes 5 rounds if it doesn't hit a one.<br />Firstplayer Computer<br />This round: 0<br />Total: 101<br />";
+        $exp = "<i class='dice-sprite dice-";
         $this->assertStringStartsWith($exp, $res);
     }
 
@@ -112,8 +114,9 @@ class HundredCreateObjectTest extends TestCase
         $players = new Hundred($list, 5);
         $this->assertInstanceOf("\Guni\Hundred\Hundred", $players);
 
-        $res = $players->ComputerRounds(0, 1, true);
-        $exp = "<br /><br />Computer makes 2 rounds if it doesn't hit a one.<br />";
+        $res = $players->ComputerRounds(0, 1, $computer);
+        //$exp = "<br /><br />Computer makes 2 rounds if it doesn't hit a one.<br />";
+        $exp = "<i class='dice-sprite dice-";
         $this->assertStringStartsWith($exp, $res);
 
         $res = $anna->isCurrentPlayer();
@@ -135,12 +138,13 @@ class HundredCreateObjectTest extends TestCase
         $this->assertInstanceOf("\Guni\Hundred\Hundred", $players);
 
         $anna->rollHand();
-        $res = $players->NamePlayerRound(1, 0, true);
+        $res = $players->NamePlayerRound(1, 0, $anna);
         $test = $players->getDetails()[1]->Graphtexts();
         $exp = $test . "<br />";
         $this->assertEquals($exp, $res);
 
 
+        $computer->setCurrentPlayer();
         $res = $computer->isCurrentPlayer();
         $exp = true;
         $this->assertEquals($exp, $res);

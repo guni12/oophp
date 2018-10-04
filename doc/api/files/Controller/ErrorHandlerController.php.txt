@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class ErrorHandlerController
+ *
+ * @package     Controller
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Anax\Controller;
 
 use Anax\Commons\ContainerInjectableInterface;
@@ -35,7 +43,7 @@ class ErrorHandlerController implements ContainerInjectableInterface
             ],
             "404" => [
                 "Anax 404: Not Found",
-                "The page you are looking for is not here."
+                "The page you are looking for is not here. From here"
             ],
             "500" => [
                 "Anax 500: Internal Server Error",

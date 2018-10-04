@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class SampleController
+ *
+ * @package     Controller
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Anax\Controller;
 
 use Anax\Commons\ContainerInjectableInterface;
@@ -143,8 +151,8 @@ class SampleController implements ContainerInjectableInterface
      * GET mountpoint/typed-argument/<string>/<int>
      *
      * NOTE. Its recommended to not use int as type since it will still
-     * accept numbers such as 2hundred givving a PHP NOTICE. So, its better to
-     * deal with type check within the action method and throuw exceptions
+     * accept numbers such as 2hundred giving a PHP NOTICE. So, its better to
+     * deal with type check within the action method and throw exceptions
      * when the expected type is not met.
      *
      * @param mixed $value with a default string.

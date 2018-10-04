@@ -1,26 +1,37 @@
 <?php
-
+/**
+ * Class Guess
+ *
+ * @package     Guess
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Guni\Guess;
 
 use Guni\Guess\GuessException;
 
 /**
- * Guess my number, a class supporting the game through GET, POST and SESSION.
+ * Guess my number, with x number of tries. A class supporting the game through GET, POST and SESSION.
  */
 class Guess
 {
     /**
-     * @var int $number   The current secret number.
-     * @var int $tries    Number of tries a guess has been made.
+     * @var int   $number  the current secret number
      */
     private $number;
+
+    /**
+     * @var int   $tries   number of tries a guess can be made before reset
+     */
     private $tries;
 
 
 
     /**
      * Constructor to initiate the object with current game settings,
-     * if available. Randomize the current number if no value is sent in.
+     * if available. Randomize the current number if no value is sent in. Six is the default tries value.
      *
      * @param int $number The current secret number, default -1 to initiate
      *                    the number from start.
@@ -86,7 +97,7 @@ class Guess
      *
      * @param int $number the currently guessed number
      *
-     * @return string to show the status of the guess made.
+     * @return string $res to show the status of the guess made.
      */
 
     public function makeGuess($number)

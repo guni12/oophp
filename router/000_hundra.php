@@ -19,24 +19,26 @@ $app->router->any(["GET", "POST"], "hundra/play", function () use ($app) {
     $res = null;
     $score = null;
     $player = null;
+    $dices = '1';
 
 
     //Start with player name and create the players
     $name = $_SESSION['name'] ?? $_POST['name'] ?? null;
-    $dices = $_SESSION['dices'] ?? $_POST['dices'] ?? 0;
+
     if (!$name) {
         $starter = "Write your name before we start.";
     }
 
     if (isset($_POST["save"])) {
         if ($name) {
+            $dices = isset($_POST["dices"]) && $_POST["dices"] > 0 ? $_POST["dices"] : '1';
             if ($dices) {
                 if (!isset($_SESSION["dices"])) {
-                    $_SESSION["dices"] = $dices;
+                    $_SESSION["dices"] = (int)$dices;
                 }
             }
 
-            $newgame = new Guni\Hundred\Player($name, $dices);
+            $newgame = new Guni\Hundred\Player($name, (int)$dices);
             if (!isset($_SESSION["player"])) {
                 $_SESSION["player"] = $newgame;
             }
@@ -45,13 +47,13 @@ $app->router->any(["GET", "POST"], "hundra/play", function () use ($app) {
                 $_SESSION["name"] = $name;
             }
 
-            $computer = new Guni\Hundred\Player("Computer", $dices);
+            $computer = new Guni\Hundred\Player("Computer", (int)$dices);
             if (!isset($_SESSION["computer"])) {
                 $_SESSION["computer"] = $computer;
             }
 
             $nowplaying = [$newgame, $computer];
-            $players = new Guni\Hundred\Hundred($nowplaying, $dices);
+            $players = new Guni\Hundred\Hundred($nowplaying, (int)$dices);
             if (!isset($_SESSION["players"])) {
                 $_SESSION["players"] = $players;
             }
@@ -65,9 +67,7 @@ $app->router->any(["GET", "POST"], "hundra/play", function () use ($app) {
     $computer = $_SESSION && $_SESSION["computer"] ? $_SESSION["computer"] : null;
     $name = $_SESSION && $_SESSION["name"] ? $_SESSION["name"] : null;
     $players = $_SESSION && $_SESSION["players"] ? $_SESSION["players"] : null;
-    $dices = $_SESSION && $_SESSION["dices"] ? $_SESSION["dices"] : 0;
-    //var_dump($_SESSION);
-    //var_dump($dices);
+    $dices = $_SESSION && $_SESSION["dices"] ? $_SESSION["dices"] : 1;
 
 
     //Roll the dice

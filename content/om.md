@@ -14,4 +14,4 @@ Naturen är en viktig del av mitt liv och balanserar livet framför skärmen.
 
 Länka till [dbwebb kursrepot på GitHub](https://github.com/dbwebb-se/oophp).
 
-Länka till [ditt eget repo för me/redovisa på GitHub](https://github.com/guni12/).
+Länka till [ditt eget repo för me/redovisa på GitHub](https://github.com/guni12/oophp).

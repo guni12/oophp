@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class Dice
+ *
+ * @package     Hundred
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Guni\Hundred;
 
 /**
@@ -9,9 +17,12 @@ class Dice
 {
     /**
      * @var int $lastRoll The current dice side.
-     * @var int $nrOfSides    Number of sides of the dice.
      */
     private $lastRoll;
+
+    /**
+     * @var int $nrOfSides    Number of sides of the dice.
+     */
     private $nrOfSides;
 
 
@@ -20,8 +31,7 @@ class Dice
      * Constructor to initiate the object with current game settings,
      * if available. Randomize the current number if no value is sent in.
      *
-     * @param int $number The current result from dice roll.
-     * @param int $nrOfSides  Number of sides, default 6.
+     * @param int $sides  Number of sides, default 6.
      */
 
     public function __construct(int $sides = 6)

@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class Hundred
+ *
+ * @package     Hundred
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Guni\Hundred;
 
 /**
@@ -8,10 +16,13 @@ namespace Guni\Hundred;
 class Hundred
 {
     /**
-     * @var int $dices The current nr of dices each round.
-
+     * @var Player $players The players in the game
      */
     private $players;
+
+    /**
+     * @var int    $dices   The current nr of dices each round.
+     */
     private $dices;
 
 
@@ -108,9 +119,9 @@ class Hundred
     /**
      * Computer plays a number of times. If lastRoll is one turn goes to next player.
      *
-     * @param int $pos1 A players place in this array
-     * @param int $pos2 Second players place in array
-     * @param boolean $check True if player got a one
+     * @param int    $pos1  A players place in this array
+     * @param int    $pos2  Second players place in array
+     * @param Player $check The current player
      *
      * @return string $starter Message for the view
      */
@@ -122,7 +133,7 @@ class Hundred
         for ($i = 0; $i < $rounds; ++$i) {
             $roundsum = $this->getDetails()[$pos1]->rollHand();
             $starter .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
-            if ($check) {
+            if ($check->getCheck()) {
                 $this->getDetails()[$pos2]->setCurrentPlayer();
                 break;
             }
@@ -138,9 +149,9 @@ class Hundred
     /**
      * Nameplayer plays it's turn. If lastRolls contains one turn goes to next player.
      *
-     * @param int $pos1 A players place in this array
-     * @param int $pos2 Second players place in array
-     * @param boolean $check True if player got a one
+     * @param int    $pos1  A players place in this array
+     * @param int    $pos2  Second players place in array
+     * @param Player $check The current player
      *
      * @return string $starter Message for the game
      */
@@ -148,7 +159,7 @@ class Hundred
     {
         $starter = "";
         $this->getDetails()[$pos1]->rollHand();
-        if ($check) {
+        if ($check->getCheck()) {
             $this->getDetails()[$pos2]->setCurrentPlayer();
         }
         $starter .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
@@ -160,9 +171,9 @@ class Hundred
     /**
      * Save pints and check if currentplayer is winner.
      *
-     * @param int $sum   Sum or lastrolls for the computer
-     * @param int $second The other players place in playerArray
-     * @param obj $who    The current player
+     * @param int    $sum    Sum or lastrolls for the computer
+     * @param int    $second The other players place in playerArray
+     * @param Player $who    The current player
      *
      * @return string $starter Message for the view
      */
@@ -185,7 +196,7 @@ class Hundred
      * Current player is either computer or human
      *
      * @param string $name    The human players name
-     * @param obj    $current The current player
+     * @param Player $current The current player
      * @param int    $pos1    Position in array of players
      * @param int    $pos2    Position in array of players
      *
@@ -195,9 +206,9 @@ class Hundred
     {
         $starter = "";
         if ($current->getName() == "Computer") {
-            $starter.= $this->computerRounds($pos1, $pos2, $current->getCheck());
+            $starter.= $this->computerRounds($pos1, $pos2, $current);
         } elseif ($current->getName() == $name) {
-            $starter .= $this->namePlayerRound($pos1, $pos2, $current->getCheck());
+            $starter .= $this->namePlayerRound($pos1, $pos2, $current);
         }
         return $starter;
     }

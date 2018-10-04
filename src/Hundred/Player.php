@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class Player
+ *
+ * @package     Hundred
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
 namespace Guni\Hundred;
 
 /**
@@ -8,18 +16,53 @@ namespace Guni\Hundred;
 class Player
 {
     /**
-     * @var int $score     The current player score.
+     * @var string $name            Name of the player
+     */
+    private $name;
 
+    /**
+     * @var int    $dices           Nr of dices to use each roll
+     */
+    private $dices;
+
+    /**
+     * @var int    $score           Current total points
+     */
+    private $score;
+
+    /**
+     * @var int    $lastRoll        The player's last roll.
      */
     private $lastRoll;
-    private $name;
-    private $score;
+
+    /**
+     * @var int    $temp            Current points for current round
+     */
     private $temp;
+
+    /**
+     * @var bool   $isCurrentPlayer If it is the players turn to play
+     */
     private $isCurrentPlayer;
+
+    /**
+     * @var string $graph           Lastroll as string
+     */
     private $graph;
-    private $dices;
+
+    /**
+     * @var array  $graphs          Array of the dices rolled last as string representations
+     */
     private $graphs;
+
+    /**
+     * @var bool   $check           True if player got a one as diceside
+     */
     private $check;
+
+    /**
+     * @var int    $sum             Sum of all dices in last roll
+     */
     private $sum;
 
 
@@ -28,17 +71,18 @@ class Player
      * if available.
      *
      * @param string $name  The name of the player
+     * @param int    $dices The number of dices to use each roll
      */
 
     public function __construct(string $name, int $dices = 1)
     {
-        $this->lastRoll = 0;
         $this->name = $name;
+        $this->dices = $dices;
         $this->temp = 0;
         $this->score = 0;
+        $this->lastRoll = 0;
         $this->isCurrentPlayer = false;
         $this->graphs = [];
-        $this->dices = $dices;
         $this->check = false;
         $this->sum = 0;
     }
@@ -52,9 +96,9 @@ class Player
     public function rollHand()
     {
         $hand = new DiceHand($this->dices);
-        //$res = $hand->roll();
+        $hand->roll();
         $this->graphs = $hand->getGraphs();
-        $this->sum = $hand->sum();
+        $sum = $hand->sum();
         $this->temp += $sum;
         $this->gotOne($hand);
         return $sum;
@@ -65,12 +109,15 @@ class Player
     /**
      * If player got a one, some settings change
      *
+     * @param DiceHand $hand The current lastroll of dices
+     *
      * @return void
      */
     public function gotOne($hand)
     {
         $this->isCurrentPlayer = $hand->getCheck() ? false : true;
         $this->temp = $hand->getCheck() ? 0 : $this->temp;
+        $this->check = $hand->getCheck();
     }
 
 
@@ -95,6 +142,7 @@ class Player
 
     /**
      * Save last roll and add to players score
+     *
      * @return string message if a winner;
      */
     public function play()
@@ -148,6 +196,7 @@ class Player
     /**
      * Update current score
      *
+     * @param int $number The total points
      */
     public function setScore($number)
     {
@@ -158,6 +207,7 @@ class Player
 
     /**
      * Get the current score.
+     *
      * @return int as the current score.
      */
     public function getScore()
@@ -169,6 +219,7 @@ class Player
 
     /**
      * Get the name of the player.
+     *
      * @return string as the player name.
      */
     public function getName()
@@ -181,6 +232,7 @@ class Player
 
     /**
      * Get the current temp.
+     *
      * @return int as the current temp points.
      */
     public function getTemp()
@@ -200,6 +252,7 @@ class Player
 
     /**
      * Get the current roll.
+     *
      * @return int as the last rolled dice.
      */
     public function getLastRoll()
@@ -210,6 +263,7 @@ class Player
 
     /**
      * Get graphic illustration for dice
+     *
      * @return string as the last rolled dice with text
      */
     public function getGraphic()
@@ -221,6 +275,7 @@ class Player
 
     /**
      * Get graphic illustrations for the current nr of dices
+     *
      * @return array as the last rolled dices with text
      */
     public function getGraphs()
@@ -231,6 +286,7 @@ class Player
 
     /**
      * Get info if dice side is one
+     *
      * @return true or false
      */
     public function getCheck()
@@ -253,8 +309,7 @@ class Player
         /**
      * Text info for the view
      *
-     * @param obj    $current The player to describe
-     * @param string $string  Info of which player
+     * @param string $string  Info if first or second player
      *
      * @return string message for the view
      */

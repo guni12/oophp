@@ -15,14 +15,6 @@ namespace Anax\View;
     <form method="POST">
         <p>Start here:
         <input type="text" name="name" placeholder="Write your username" value="">
-        <!--<input type="text" name="dices" placeholder="How many dices (1-5)?" value="">
-        <select name="dices">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>-->
         <input list="nrofdices" name="dices" placeholder="Nr of dices">
         <datalist id="nrofdices">
             <option value="1">
