@@ -15,6 +15,7 @@ namespace Guni\Hundred;
  */
 class DiceGraphic extends Dice
 {
+
     /**
      * @var integer SIDES Number of sides of the Dice.
      */

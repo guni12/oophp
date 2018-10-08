@@ -13,17 +13,14 @@ namespace Guni\Hundred;
 /**
  * A dicehand, consisting of dices.
  */
-class DiceHand
+class DiceHand implements HistogramInterface
 {
+    use HistogramTrait;
+
     /**
      * @var Dice $dices   Array consisting of dices.
      */
     private $dices;
-
-    /**
-     * @var int  $values  Array consisting of last roll of the dices.
-     */
-    private $values;
 
     /**
      * @var string  $graphs  Array consisting of last roll of the dices as strings.
@@ -43,15 +40,12 @@ class DiceHand
     public function __construct(int $dices = 5)
     {
         $this->dices  = [];
-        $this->values = [];
         $this->graphs = [];
 
         for ($i = 0; $i < $dices; $i++) {
             $this->dices[]  = new DiceGraphic();
-            $this->values[] = null;
             $this->graphs[] = null;
         }
-        //var_dump($this->dices, $this->values, $this->graphs);
     }
 
     /**
@@ -64,37 +58,11 @@ class DiceHand
         for ($i = 0; $i < count($this->dices); $i++) {
             $test = $this->dices[$i]->random();
             $this->graphs[] = $this->dices[$i]->graphic();
-            $this->values[] = $test;
+            $this->serie[] = $test;
             if ($test == 1) {
                 $this->check = true;
             }
         }
-        if ($this->check) {
-            $this->resetValues();
-        }
-    }
-
-
-    /**
-     * Reset values if player rolls one.
-     *
-     * @return void.
-     */
-    public function resetValues()
-    {
-        $this->values = array_fill(0, count($this->dices), null);
-    }
-
-
-
-    /**
-     * Get values of dices from last roll.
-     *
-     * @return array with values of the last roll.
-     */
-    public function values()
-    {
-        return $this->values;
     }
 
 
@@ -110,6 +78,18 @@ class DiceHand
 
 
     /**
+     * Get the sum of all dices.
+     *
+     * @return int as the sum of all dices.
+     */
+    public function sum()
+    {
+        $sum = array_sum($this->serie);
+        return $sum;
+    }
+
+
+    /**
      * Inform if dice is one.
      *
      * @return true or false.
@@ -117,17 +97,5 @@ class DiceHand
     public function getCheck()
     {
         return $this->check;
-    }
-
-
-    /**
-     * Get the sum of all dices.
-     *
-     * @return int as the sum of all dices.
-     */
-    public function sum()
-    {
-        $sum = array_sum($this->values);
-        return $sum;
     }
 }

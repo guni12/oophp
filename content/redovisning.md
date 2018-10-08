@@ -49,7 +49,34 @@ Min kod har 100% kodtäckning och jag har jobbat en hel del med att förkorta fu
 Kmom04
 -------------------------
 
-Här är redovisningstexten
+* Trait och Interface
+
+`HistogramInterface` och `HistogramTrait` valde jag att knyta till `DiceHand`-klassen. Och histogramutskriften `histAsText()` fick ligga i `Hundred` eftersom jag ville ha koll på flera rundor av flera tärningar. Histogramfunktionen `getHistogramMax()` använder jag i spel-återkopplingen, bara för att ha med den någonstans.
+
+Jag fick klura lite hur man får tillgång till sitt trait. Den egna klassen `Histogram` skulle jag antagligen inte gjort i mitt "normala" fall. Jag har en tendens att göra väldigt långa filer och klasser och behöver komma på hur jag lägger ut saker. Först lade jag funktionen `getHistogramMax()` i `DiceHand`-klassen. Och då kördes den mycket riktigt inte via ingående trait, vilket jag förstod genom phpunit-testerna.
+
+* Hur gjorde du för att skapa intelligensen och taktiken till tärningsspelet?
+
+Om datorn spelar fler tärningar gör den färre försök. Om medel av tärningsslagen i försöket är högre än 3.5 så nöjer den sig. Inte så avancerat, men datorn vinner över mig ibland med denna simpla algoritm.
+
+Jag valde att stoppa in båda spelarna i sessionen och bygga på mitt system från tidigare kmom, dvs först skapas två `Player`-objekt och så initierar jag spelklassen `Hundred` med dessa. Slutligen lägger jag detta objekt i sessionen.
+
+Spel-routen `hundred\player` kanske inte är optimal nu med så många variabler i sig. Å andra sidan är template-filerna mindre. Jag lade också till en klass för view `Formview`. För att skicka med variablerna dit för `form action` behöver anax-klasser injectas och jag misstänker att detta kommer i senare kursmoment.
+
+Jag har haft oerhörd hjälp av att behålla Development-fliken i ramverket. Så smidigt att se vad som ligger i sessionen hela tiden på det sättet.
+
+* Enhetstester och kodtäckning
+
+Jag trodde att det skulle vara mer omfattande att uppdatera enhetstesterna än det visade sig vara. De allra flesta koderna fungerade forfarande och övriga krävde små förändringar. De nya histogram-funktionerna behövde förstås nya tester.
+
+Integration av beroenden i testerna ser jag fram emot att erövra. Att testa olika scenarier behöver jag också förstå mer kring.
+
+Jag har 100% kodtäckning, men min `Hundred` vill bli för lång. Jag gjorde en hjälpklass för att komma under 10 publika klasser. Till min förvåning behövde jag fortfarande inte ändra något i mina testklasser pga detta. Jag inser att strukturen kan bli renare och mer genomtänkt, men jag nöjer mig för nu. Och messdetectorn visar ok.
+
+
+
+
+
 
 
 

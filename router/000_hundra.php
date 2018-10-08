@@ -8,147 +8,85 @@
 /**
  * Play dice game Hundred
  */
-$app->router->any(["GET", "POST"], "hundra/play", function () use ($app) {
-
-    //Our memebers
-    $players = [];
-
-    $starter = "";
-    $message = "";
-
-    $res = null;
-    $score = null;
-    $player = null;
-    $dices = '1';
-
-
-    //Start with player name and create the players
-    $name = $_SESSION['name'] ?? $_POST['name'] ?? null;
-
-    if (!$name) {
-        $starter = "Write your name before we start.";
-    }
-
-    if (isset($_POST["save"])) {
-        if ($name) {
-            $dices = isset($_POST["dices"]) && $_POST["dices"] > 0 ? $_POST["dices"] : '1';
-            if ($dices) {
-                if (!isset($_SESSION["dices"])) {
-                    $_SESSION["dices"] = (int)$dices;
-                }
-            }
-
-            $newgame = new Guni\Hundred\Player($name, (int)$dices);
-            if (!isset($_SESSION["player"])) {
-                $_SESSION["player"] = $newgame;
-            }
-
-            if (!isset($_SESSION["name"])) {
-                $_SESSION["name"] = $name;
-            }
-
-            $computer = new Guni\Hundred\Player("Computer", (int)$dices);
-            if (!isset($_SESSION["computer"])) {
-                $_SESSION["computer"] = $computer;
-            }
-
-            $nowplaying = [$newgame, $computer];
-            $players = new Guni\Hundred\Hundred($nowplaying, (int)$dices);
-            if (!isset($_SESSION["players"])) {
-                $_SESSION["players"] = $players;
-            }
-        } else {
-            $starter = "Write your name before we start.";
-        }
-    }
-
-
-    $player = $_SESSION && $_SESSION["player"] ? $_SESSION["player"] : null;
-    $computer = $_SESSION && $_SESSION["computer"] ? $_SESSION["computer"] : null;
-    $name = $_SESSION && $_SESSION["name"] ? $_SESSION["name"] : null;
-    $players = $_SESSION && $_SESSION["players"] ? $_SESSION["players"] : null;
-    $dices = $_SESSION && $_SESSION["dices"] ? $_SESSION["dices"] : 1;
-
-
-    //Roll the dice
-    if (isset($_POST["start"])) {
-        if ($player) {
-            $starter = $players->rollToStart();
-        } else {
-            $starter = "We need your username for the game to start.";
-        }
-    }
-
-
-    //Roll the dice
-    if (isset($_POST["doPlay"])) {
-        if ($player) {
-            $starter = $players->playButton($name);
-            $message = $player->getMessage() . "<br/ >" . $computer->getMessage();
-        } else {
-            $starter = "You need to be someone to play the game.";
-        }
-        //var_dump($players->getDetails());
-    }
-
-    //Save the roll
-    if (isset($_POST["keepRoll"])) {
-        if ($player) {
-            if ($player->getTemp() > 1) {
-                $starter .= $player->play();
-                $computer->setCurrentPlayer();
-            }
-            $message = $player->getMessage() . "<br/ >" . $computer->getMessage();
-        } else {
-            $starter = "There is noone yet to play the game.";
-        }
-    }
-
-
-    //Reset the game
-    if (isset($_POST["reset"])) {
-        if ($player) {
-            $players->reset();
-        }
-
-        // If it's desired to kill the session, also delete the session cookie.
-        // Note: This will destroy the session, and not just the session data!
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
-
-        // Finally, destroy the session.
-        session_destroy();
-        $name = "";
-        echo "The session is destroyed.";
-    }
-
-
-    //var_dump($players);
-
-
-    //Prepare $data
-
-    $nametext = $name ? " " . $name : "";
+$app->router->get("hundred", function () use ($app) {
     $data = [
-        "title" => "Welcome" . $nametext . "!<br /> Ready to play hundred?",
+        "title" => "Spela tärningsspelet hundra",
+        "action" => "hundred/reset",
+        "method" => "post",
     ];
-    $data["name"] = $name;
+
+    $formview = new Guni\Hundred\Formview();
+    $form = $formview->getIntro();
+
+    $data["form"] = $form;
+
+    $app->session->delete("Hundra");
+    $app->view->add("hundred/index", $data);
+    return $app->page->render();
+});
+
+
+
+
+/**
+ * Reset and start the game
+ */
+$app->router->post("hundred/reset", function () use ($app) {
+    $dices = $app->request->getPost("dices");
+    $name = $app->request->getPost("name");
+
+    $game = new Guni\Hundred\Player($name, $dices);
+    $computer = new Guni\Hundred\Player("Dator", $dices);
+    $players = new Guni\Hundred\Hundred([$game, $computer], $dices);
+    $app->session->set("Hundra", $players);
+    $app->response->redirect("hundred/player");
+});
+
+
+/**
+ * Player
+ */
+$app->router->any("GET|POST", "hundred/player", function () use ($app) {
+    $data = [
+        "action" => "hundred/player",
+        "method" => "post",
+    ];
+
+    $players = $app->session->get("Hundra");
+    $player = $players->getDetails()[0];
+    $computer = $players->getDetails()[1];
+    $message = "";
+    $who = "Vem får börja?";
+    $now = "Ställning";
+    $formview = new Guni\Hundred\Formview();
+    $form = $formview->getStart();
+
+    if ($app->request->getPost("start")) {
+        $message = $players->rollToStart();
+        $who = $player->isCurrentPlayer() ? $player->getName() . " nästa" : "Dator nästa";
+        $form = $formview->getPlay();
+    } elseif ($app->request->getPost("doPlay")) {
+        $now = $player->isCurrentPlayer() ? $player->getName() : "Dator";
+        $message = $players->playButton($player->getName());
+        $who = $player->isCurrentPlayer() ? $player->getName() . " nästa" : "Dator nästa";
+        $form = $formview->getPlay();
+    } elseif ($app->request->getPost("reset")) {
+        $app->response->redirect("hundred");
+    } elseif ($app->request->getPost("keepRoll")) {
+        $message .= $player->play();
+        $players->reset();
+        $computer->setCurrentPlayer();
+        $who = "Dator nästa";
+        $now = $player->getName();
+        $message .= $players->getMessage();
+        $form = $formview->getPlay();
+    }
+
+    $data["form"] = $form;
     $data["message"] = $message;
-    $data["res"] = $res;
-    $data["starter"] = $starter;
+    $data["title"] = $who;
+    $data["score"] = $now;
 
-
-    //Add view and render page
-    $app->page->add("hundred/play", $data);
+    $app->view->add("hundred/player", $data);
     return $app->page->render();
 });

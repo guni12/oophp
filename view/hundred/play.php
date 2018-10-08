@@ -8,6 +8,8 @@ namespace Anax\View;
 
 // Show incoming variables and view helper functions
 //echo showEnvironment(get_defined_vars(), get_defined_functions());
+$message = $message ?? null;
+$res = $res ?? null;
 ?>
 
     <h1><?= $title ?></h1>

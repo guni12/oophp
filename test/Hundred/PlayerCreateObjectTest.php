@@ -100,7 +100,7 @@ class PlayerCreateObjectTest extends TestCase
 
         $player->resetScore();
         $res = $player->getMessage();
-        $exp = "Current score for Sebbe is: 0";
+        $exp = "Sebbe: 0 poäng";
         $this->assertEquals($exp, $res);
     }
 

@@ -13,8 +13,10 @@ namespace Guni\Hundred;
 /**
  * A dicehand, consisting of dices.
  */
-class DiceHand
+class DiceHand implements HistogramInterface
 {
+    use HistogramTrait;
+
     /**
      * @var Dice $dices   Array consisting of dices.
      */
@@ -30,10 +32,12 @@ class DiceHand
      */
     private $graphs;
 
+
     /**
      * @var boolean $check  True if dicehand contains a one.
      */
     private $check = false;
+
 
     /**
      * Constructor to initiate the dicehand with a number of dices.
@@ -65,6 +69,7 @@ class DiceHand
             $test = $this->dices[$i]->random();
             $this->graphs[] = $this->dices[$i]->graphic();
             $this->values[] = $test;
+            $this->serie[] = $test;
             if ($test == 1) {
                 $this->check = true;
             }
@@ -129,6 +134,17 @@ class DiceHand
     {
         $sum = array_sum($this->values);
         return $sum;
+    }
+
+
+    /**
+     * Get max value for the histogram.
+     *
+     * @return int with the max value.
+     */
+    public function getHistogramMax()
+    {
+        return count($this->dices);
     }
 }
 

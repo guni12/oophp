@@ -21,9 +21,19 @@ class Hundred
     private $players;
 
     /**
-     * @var int    $dices   The current nr of dices each round.
+     * @var int $dices   The current nr of dices each round.
      */
     private $dices;
+
+    /**
+     * @var array $histarray   Array of dices in current round.
+     */
+    private $histarray;
+
+    /**
+     * @var string $round            All dices in current round
+     */
+    private $round;
 
 
     /**
@@ -38,6 +48,8 @@ class Hundred
     {
         $this->players = $players;
         $this->dices = $dices;
+        $this->histarray = [];
+        $this->round = "";
     }
 
 
@@ -54,64 +66,22 @@ class Hundred
 
 
     /**
-     * Sort the players according to highest startout roll
-     *
-     * @param obj $first  Player in this list of Players
-     * @param obj $second Player in this list of Players
-     *
-     * @return the objects sorted by their lastRoll
-     */
-    public function sortObjectsByLastroll($first, $second)
-    {
-        return $first->getLastRoll() < $second->getLastRoll();
-    }
-
-
-
-    /**
-     * Sort players by highest startout roll
-     *
-     * @return object
-     */
-    public function organizeOrder()
-    {
-        usort($this->players, array($this, "sortObjectsByLastroll"));
-        return $this->players[0];
-    }
-
-
-
-    /**
-     * Resets points for round and total
-     *
-     * @return void
-     */
-    public function reset()
-    {
-        foreach ($this->players as $player) {
-            $player->resetScore();
-            $player->resetTemp();
-        }
-    }
-
-
-
-    /**
      * Startout roll for the game. Highest roll gets to start.
      *
-     * @return string @starter Message of rolls and who gets to start
+     * @return string @message Message of rolls and who gets to start
      */
     public function rollToStart()
     {
-        $starter = "";
+        $message = "";
         foreach ($this->players as $player) {
             $player->roll();
-            $starter .= $player->getName() . ": " . $player->graphtext();
+            $message .= $player->getName() . ": " . $player->graphtext();
         }
-        $test = $this->organizeOrder();
-        $starter .= "<br />" . $test->getName() . " gets to start";
+        $this->misc = new Misc($this->players);
+        $this->players = $this->misc->organizeOrder();
+        $message .= "<br /><br />Kasta tärning och spara undan när du är nöjd och innan du slår en etta. Annars är allt förlorat och turen går vidare. <br /><br/>Klicka också för att datorn ska spela sin omgång.";
         $this->getDetails()[0]->setCurrentPlayer();
-        return $starter;
+        return $message;
     }
 
 
@@ -119,28 +89,40 @@ class Hundred
     /**
      * Computer plays a number of times. If lastRoll is one turn goes to next player.
      *
-     * @param int    $pos1  A players place in this array
-     * @param int    $pos2  Second players place in array
-     * @param Player $check The current player
+     * @param int    $pos1  Zero or one for position in this->players array
+     * @param int    $pos2  Zero or one for position in this->players array
+     * @param Player $current The current player
      *
-     * @return string $starter Message for the view
+     * @return string $message Rolled dices as dicegraphs and histogram
      */
-    public function computerRounds($pos1, $pos2, $check)
+    public function computerRounds($pos1, $pos2, $current)
     {
         $roundsum = 0;
-        $starter = "";
+        $message = "";
+        $histtemp = "";
+        $histmax = 0;
         $rounds = $this->dices > 4 ? 2 : ($this->dices > 2 && $this->dices <= 4 ? 3 : 5);
         for ($i = 0; $i < $rounds; ++$i) {
             $roundsum = $this->getDetails()[$pos1]->rollHand();
-            $starter .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
-            if ($check->getCheck()) {
+            $message .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
+            $this->histarray[] = $this->getDetails()[$pos1]->getHist();
+            $histtemp = $this->histAsText();
+            $histmax = $this->getDetails()[$pos1]->getHistogramMax() > $histmax ? $this->getDetails()[$pos1]->getHistogramMax() : $histmax;
+            $average = $this->getDetails()[$pos1]->getAverage();
+            if ($current->getCheck()) {
                 $this->getDetails()[$pos2]->setCurrentPlayer();
+                $this->histarray = [];
+                break;
+            }
+            if ($average > 3.5 && $this->dices > 2) {
+                $this->histarray = [];
                 break;
             }
         }
-        $starter .= "<br />Computer makes " . $rounds . " rounds if it doesn't hit a one.<br />";
-        $starter .= $this->playAndCheckWinner($roundsum, $pos2, $this->getDetails()[$pos1]);
-        return $starter;
+        $message .= $histtemp;
+        $message .= "<br /><br />Högsta värde: " . $histmax . "<br />";
+        $message .= $this->playAndCheckWinner($roundsum, $pos2, $this->getDetails()[$pos1]);
+        return $message;
     }
 
 
@@ -149,21 +131,27 @@ class Hundred
     /**
      * Nameplayer plays it's turn. If lastRolls contains one turn goes to next player.
      *
-     * @param int    $pos1  A players place in this array
-     * @param int    $pos2  Second players place in array
+     * @param int    $pos1  Zero or one for position in this->players array
+     * @param int    $pos2  Zero or one for position in this->players array
      * @param Player $check The current player
      *
-     * @return string $starter Message for the game
+     * @return string $message Rolled dices as dicegraphs and histogram
      */
     public function namePlayerRound($pos1, $pos2, $check)
     {
-        $starter = "";
+        $message = "";
         $this->getDetails()[$pos1]->rollHand();
+        $this->histarray[] = $this->getDetails()[$pos1]->getHist();
+        $this->round .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
+        $message .= $this->round;
+        $message .= $this->histAsText();
+        $message .= "<br /><br />Högsta värde: " . $this->getDetails()[$pos1]->getHistogramMax() . "<br />";
         if ($check->getCheck()) {
             $this->getDetails()[$pos2]->setCurrentPlayer();
+            $this->histarray = [];
+            $this->round = "";
         }
-        $starter .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
-        return $starter;
+        return $message;
     }
 
 
@@ -175,19 +163,19 @@ class Hundred
      * @param int    $second The other players place in playerArray
      * @param Player $who    The current player
      *
-     * @return string $starter Message for the view
+     * @return string $message Winning message, if relevant, for the view
      */
     public function playAndCheckWinner($sum, $second, $who)
     {
-        $starter = "";
+        $message = "";
         if ($sum > 1) {
             $who->play();
             if ($who->getScore() >= 100) {
-                $starter = "<span class='red'>". $who->getName() . " won!</span><br />";
+                $message = "<span class='red'>". $who->getName() . " vann!</span><br />";
             }
         }
         $this->getDetails()[$second]->setCurrentPlayer();
-        return $starter;
+        return $message;
     }
 
 
@@ -200,43 +188,107 @@ class Hundred
      * @param int    $pos1    Position in array of players
      * @param int    $pos2    Position in array of players
      *
-     * @return string $starter Text info for the view
+     * @return string $message Game feedback for the view
      */
     public function currentPlayer($name, $current, $pos1, $pos2)
     {
-        $starter = "";
-        if ($current->getName() == "Computer") {
-            $starter.= $this->computerRounds($pos1, $pos2, $current);
+        $message = "";
+        if ($current->getName() == "Dator") {
+            $message.= $this->computerRounds($pos1, $pos2, $current);
         } elseif ($current->getName() == $name) {
-            $starter .= $this->namePlayerRound($pos1, $pos2, $current);
+            $message .= $this->namePlayerRound($pos1, $pos2, $current);
+            $message .= $current->getRoundMessage();
         }
-        return $starter;
+        return $message;
     }
 
 
     /**
-     * When button "Roll the dice" is pressed this happens
+     * Return a string with a textual representation of the histogram.
+     *
+     * @return string representing the histogram.
+     */
+    public function histAsText()
+    {
+        $res = "";
+        $sorted = array_fill_keys(
+            array('1', '2', '3', '4', '5', '6'),
+            null
+        );
+        foreach ($this->histarray as $value) {
+            foreach ($value as $key => $side) {
+                $sorted[$side] .= '*';
+            }
+        }
+        foreach ($sorted as $key => $value) {
+            if ($value) {
+                $span = $key == '1' ? '<span class="red">' : "";
+                $end = $key == '1' ? '</span>' : "";
+                $res .= $span . $key . ": " . $value . $end  . "<br />";
+            }
+        }
+        return $res;
+    }
+
+
+    /**
+     * When button "Roll the dice" is pressed the currentplayer gets to make a roll
      *
      * @param string $name The human players name
      *
-     * @return string $starter Info for the view
+     * @return string $message Game feedback for the view
      */
     public function playButton($name)
     {
-        $starter = "";
+        $message = "";
         $zero = 0;
         $one = 1;
         if ($this->getDetails()[0]->isCurrentPlayer() == true) {
-            $starter .= $this->currentPlayer($name, $this->getDetails()[0], $zero, $one);
-            $starter .= $this->getDetails()[0]->getRoundMessage("Firstplayer ");
+            $message .= $this->currentPlayer($name, $this->getDetails()[0], $zero, $one);
         } elseif ($this->getDetails()[1]->isCurrentPlayer() == true) {
-            $starter .= $this->currentPlayer($name, $this->getDetails()[1], $one, $zero);
-            $starter .= $this->getDetails()[1]->getRoundMessage("Secondplayer ");
+            $message .= $this->currentPlayer($name, $this->getDetails()[1], $one, $zero);
         }
+        $message .= $this->getMessage();
         if ($this->getDetails()[0]->getScore() >= 100 || $this->getDetails()[1]->getScore() >= 100) {
-            $this->reset();
+            $this->getDetails()[0]->resetScore();
+            $this->getDetails()[1]->resetScore();
         }
+        return $message;
+    }
 
-        return $starter;
+
+    /**
+     * Returns information of scores in the game
+     *
+     * @return string Info about the game for both players
+     */
+    public function getMessage()
+    {
+        return $this->getDetails()[0]->getMessage() . "<br/ >" . $this->getDetails()[1]->getMessage();
+    }
+
+
+    /**
+     * Returns who is current player
+     *
+     * @return Player $current The current player
+     */
+    public function getCurrentPlayer()
+    {
+        $current = $this->getDetails()[0]->isCurrentPlayer() ? $this->getDetails()[0] : $this->getDetails()[1];
+        return $current;
+    }
+
+
+
+    /**
+     * Reset current round of rolls when turn moves to next player
+     *
+     * @return void
+     */
+    public function reset()
+    {
+        $this->histarray = [];
+        $this->round = "";
     }
 }

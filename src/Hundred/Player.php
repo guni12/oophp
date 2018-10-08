@@ -31,6 +31,11 @@ class Player
     private $score;
 
     /**
+     * @var int    $average         Average for last roll
+     */
+    private $average;
+
+    /**
      * @var int    $lastRoll        The player's last roll.
      */
     private $lastRoll;
@@ -65,6 +70,16 @@ class Player
      */
     private $sum;
 
+    /**
+     * @var int    $histmax         Histogram max, nr of dices for the histogram
+     */
+    private $histmax;
+
+    /**
+     * @var string $hist            Histogram of current roll
+     */
+    private $hist;
+
 
     /**
      * Constructor to initiate the object with current game settings,
@@ -80,11 +95,15 @@ class Player
         $this->dices = $dices;
         $this->temp = 0;
         $this->score = 0;
+        $this->average = 0;
         $this->lastRoll = 0;
         $this->isCurrentPlayer = false;
         $this->graphs = [];
         $this->check = false;
         $this->sum = 0;
+        $this->hist = "";
+        $this->histmax = 0;
+        $this->round = "";
     }
 
 
@@ -98,7 +117,11 @@ class Player
         $hand = new DiceHand($this->dices);
         $hand->roll();
         $this->graphs = $hand->getGraphs();
+        $this->hist = new Histogram();
+        $this->hist->injectData($hand);
         $sum = $hand->sum();
+        $this->average = $sum / $this->dices;
+        $this->histmax = $this->hist->getHistogramMax();
         $this->temp += $sum;
         $this->gotOne($hand);
         return $sum;
@@ -147,13 +170,15 @@ class Player
      */
     public function play()
     {
-        $updated = $this->score + $this->temp;
+        $updated = $this->temp > 0 ? $this->score + $this->temp : $this->score;
         $this->setScore($updated);
-        $this->temp = 0;
+        $this->resetTemp();
         $this->isCurrentPlayer = false;
+        $this->hist = "";
+        $this->round = "";
 
         if ($this->getScore() >= 100) {
-            return "<span class='red'>Congratulations - You won!</span>";
+            return "<span class='red'>Grattis - Du vann!</span><br />";
         }
     }
 
@@ -262,6 +287,28 @@ class Player
 
 
     /**
+     * Get the current rolled average.
+     *
+     * @return int as average of last rolled dices.
+     */
+    public function getAverage()
+    {
+        return $this->average;
+    }
+
+
+    /**
+     * Get max from histogram.
+     *
+     * @return int as histogramMax of rolled dices.
+     */
+    public function getHistogramMax()
+    {
+        return $this->histmax;
+    }
+
+
+    /**
      * Get graphic illustration for dice
      *
      * @return string as the last rolled dice with text
@@ -295,6 +342,17 @@ class Player
     }
 
 
+    /**
+     * Get histogram string of last roll
+     *
+     * @return string as histogram of last roll
+     */
+    public function getHist()
+    {
+        return $this->hist->getSerie();
+    }
+
+
 
     /**
      * Get message of current position.
@@ -302,44 +360,42 @@ class Player
      */
     public function getMessage()
     {
-        return "Current score for " . $this->getName() . " is: " . $this->getScore();
+        return $this->getName() . ": " . $this->getScore() . " poäng";
     }
 
 
         /**
      * Text info for the view
      *
-     * @param string $string  Info if first or second player
-     *
      * @return string message for the view
      */
-    public function getRoundMessage($string)
+    public function getRoundMessage()
     {
-        return $string . $this->getName() . "<br />This round: ". $this->getTemp() . "<br />Total: " . $this->getScore() . "<br />";
+        return "Denna omgång: ". $this->getTemp() . "<br />";
     }
 
 
     /**
      * Text that shows dices graphically for the view
      *
-     * @return string @starter Info of dices rolls for the view
+     * @return string @message Info of dices rolls for the view
      */
     public function graphtexts()
     {
-        $starter = null;
+        $message = null;
         foreach ($this->getGraphs() as $item) {
             if ($item) {
-                $starter .= "<i class='dice-sprite " . $item . "'></i> ";
+                $message .= "<i class='dice-sprite " . $item . "'></i> ";
             }
         }
-        return $starter;
+        return $message;
     }
 
 
     /**
      * Text that shows one dice graphically for the view
      *
-     * @return string @starter Info of one dice roll for the view
+     * @return string Info of one dice roll for the view
      */
     public function graphtext()
     {

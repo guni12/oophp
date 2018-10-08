@@ -23,7 +23,7 @@ class Dice
     /**
      * @var int $nrOfSides    Number of sides of the dice.
      */
-    private $nrOfSides;
+    protected $nrOfSides;
 
 
 

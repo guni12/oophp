@@ -62,7 +62,7 @@ body {
  * Main
  */
 .outer-wrap-main {
-  min-height: 20em;
+  min-height: 22em;
   margin-bottom: 4em; }
 
 .wrap-main h1 {
@@ -73,6 +73,23 @@ body {
 
 h1 {
   font-size: 2.5em; }
+
+.container {
+  max-width: 680px;
+  min-height: 300px;
+  overflow: hidden; }
+
+.left {
+  float: left;
+  width: 45%;
+  padding: 2%;
+  position: relative; }
+
+.right {
+  float: left;
+  width: 45%;
+  padding: 2%;
+  position: relative; }
 
 /**
  * Footer

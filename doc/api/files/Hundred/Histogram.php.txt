@@ -1,0 +1,82 @@
+<?php
+/**
+ * Class Histogram
+ *
+ * @package     Hundred
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (04-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
+namespace Guni\Hundred;
+
+/**
+ * Generating histogram data.
+ */
+class Histogram
+{
+    /**
+     * @var array $serie  The numbers stored in sequence.
+     */
+    private $serie = [];
+
+    /**
+     * @var int   $min    The lowest possible number.
+     */
+    private $min;
+
+    /**
+     * @var int   $max    The highest possible number.
+     */
+    private $max;
+
+
+
+    /**
+     * Get the serie.
+     *
+     * @return array with the serie.
+     */
+    public function getSerie()
+    {
+        return $this->serie;
+    }
+
+
+
+    /**
+     * Return a string with a textual representation of the histogram.
+     *
+     * @return string representing the histogram.
+     */
+    public function getAsText()
+    {
+        $res = "";
+        $sorted = array_fill_keys(
+            array('1', '2', '3', '4', '5', '6'),
+            null);
+        foreach ($this->serie as $key => $value) {
+            $sorted[$value] .= '*';
+        }
+        foreach ($sorted as $key => $value) {
+            $res .= $key . ": " . $value . "<br />";
+        }
+        return $res;
+    }
+
+
+    /**
+     * Inject the object to use as base for the histogram data.
+     *
+     * @param HistogramInterface $object The object holding the serie.
+     *
+     * @return void.
+     */
+    public function injectData(HistogramInterface $object)
+    {
+        $this->serie = $object->getHistogramSerie();
+        $this->min   = $object->getHistogramMin();
+        $this->max   = $object->getHistogramMax();
+    }
+}
+

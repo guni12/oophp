@@ -40,7 +40,7 @@ return [
     ],
     [
         "text" => "Hundra",
-        "url" => "hundra",
+        "url" => "hundred",
         "title" => "Tärningsspel",
     ],
 ];
