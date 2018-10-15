@@ -23,8 +23,6 @@ $di->loadServices(ANAX_INSTALL_PATH . "/config/di");
 $app = $di;
 $di->set("app", $app);
 
-
-//session_name("guni12");
 //session_start();
 
 // Include user defined routes using programming-style.

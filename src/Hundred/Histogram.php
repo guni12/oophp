@@ -58,6 +58,11 @@ class Histogram
     }
 
 
+    /**
+     * Get max value.
+     *
+     * @return string max value from current roll.
+     */
     public function getHistogramMax()
     {
         return $this->max;

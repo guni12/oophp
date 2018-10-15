@@ -43,28 +43,6 @@ class Histogram
     }
 
 
-
-    /**
-     * Return a string with a textual representation of the histogram.
-     *
-     * @return string representing the histogram.
-     */
-    public function getAsText()
-    {
-        $res = "";
-        $sorted = array_fill_keys(
-            array('1', '2', '3', '4', '5', '6'),
-            null);
-        foreach ($this->serie as $key => $value) {
-            $sorted[$value] .= '*';
-        }
-        foreach ($sorted as $key => $value) {
-            $res .= $key . ": " . $value . "<br />";
-        }
-        return $res;
-    }
-
-
     /**
      * Inject the object to use as base for the histogram data.
      *
@@ -77,6 +55,17 @@ class Histogram
         $this->serie = $object->getHistogramSerie();
         $this->min   = $object->getHistogramMin();
         $this->max   = $object->getHistogramMax();
+    }
+
+
+    /**
+     * Get max value.
+     *
+     * @return string max value from current roll.
+     */
+    public function getHistogramMax()
+    {
+        return $this->max;
     }
 }
 

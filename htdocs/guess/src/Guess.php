@@ -26,7 +26,7 @@ class Guess
 
     public function __construct(int $number = -1, int $tries = 6)
     {
-        $this->number = $number == -1 ? mt_rand(1,100) : $number;
+        $this->number = $number == -1 ? mt_rand(1, 100) : $number;
         $this->tries = $tries;
     }
 
@@ -40,7 +40,7 @@ class Guess
      */
     public function random()
     {
-        $this->number = mt_rand(1,100);
+        $this->number = mt_rand(1, 100);
         $this->tries = 6;
     }
 
@@ -107,5 +107,4 @@ class Guess
         }
         return $res;
     }
-
 }

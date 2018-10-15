@@ -10,6 +10,17 @@ use PHPUnit\Framework\TestCase;
 class HundredCreateObjectTest extends TestCase
 {
     /**
+     * Setup mock for testing.
+     */
+    public function setUp()
+    {
+        $this->getMockBuilder('\Dice')
+            ->setMethods(array('random'))
+            ->getMock();
+    }
+
+
+    /**
      * Construct object and verify that the object has the expected
      * properties. Use one argument.
      */
@@ -105,10 +116,10 @@ class HundredCreateObjectTest extends TestCase
      */
     public function testCreateObjectComputerRounds()
     {
-        $computer = new Player("Dator");
-        $anna = new Player("Anna", 10);
+        $computer = new Player("Dator", 5);
+        $anna = new Player("Anna", 5);
         $list = [$computer, $anna];
-        $players = new Hundred($list, 10);
+        $players = new Hundred($list, 5);
         $this->assertInstanceOf("\Guni\Hundred\Hundred", $players);
 
         $res = $players->ComputerRounds(0, 1, $computer);

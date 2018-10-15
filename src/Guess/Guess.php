@@ -38,7 +38,6 @@ class Guess
      * @param int $tries  Number of tries a guess has been made,
      *                    default 6.
      */
-
     public function __construct(int $number = -1, int $tries = 6)
     {
         $this->number = $number == -1 ? mt_rand(1, 100) : $number;
@@ -66,7 +65,6 @@ class Guess
      *
      * @return int as number of tries made.
      */
-
     public function tries()
     {
         return $this->tries;
@@ -80,7 +78,6 @@ class Guess
      *
      * @return int as the secret number.
      */
-
     public function number()
     {
         return $this->number;
@@ -99,7 +96,6 @@ class Guess
      *
      * @return string $res to show the status of the guess made.
      */
-
     public function makeGuess($number)
     {
         if ($number <= 0 || $number >= 100 || is_nan($number)) {

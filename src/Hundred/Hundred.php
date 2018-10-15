@@ -102,7 +102,8 @@ class Hundred
         $histtemp = "";
         $histmax = 0;
         $rounds = $this->dices > 4 ? 2 : ($this->dices > 2 && $this->dices <= 4 ? 3 : 5);
-        for ($i = 0; $i < $rounds; ++$i) {
+        $i = 0;
+        for ($i; $i < $rounds; ++$i) {
             $roundsum = $this->getDetails()[$pos1]->rollHand();
             $message .= $this->getDetails()[$pos1]->graphtexts() . "<br />";
             $this->histarray[] = $this->getDetails()[$pos1]->getHist();
@@ -124,7 +125,6 @@ class Hundred
         $message .= $this->playAndCheckWinner($roundsum, $pos2, $this->getDetails()[$pos1]);
         return $message;
     }
-
 
 
 

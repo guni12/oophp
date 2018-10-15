@@ -1,10 +1,23 @@
 Revision history
 ===================
 
+
+
+
+
 v4.0.0 (2018-10-08)
 --------------------
 
 * Commit of kmom04.
+
+
+
+
+v2.0.0 (2018-10-04)
+--------------------
+
+* Commit of kmom02. Just to complete tags.
+
 
 
 

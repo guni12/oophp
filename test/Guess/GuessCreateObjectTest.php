@@ -77,9 +77,9 @@ class GuessCreateObjectTest extends TestCase
         $tries = $guess->tries() - 1;
 
         $res = $guess->makeGuess($num);
-        //$exp = "correct!!!"; //Mos
         $exp = "You got it! Well done! Correct number is " . $num . " and you have " . $tries . " remaining tries.<br />We reset the game.";
         $this->assertEquals($exp, $res);
+        $guess->random();
     }
 
 

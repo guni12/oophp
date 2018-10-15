@@ -43,4 +43,9 @@ return [
         "url" => "hundred",
         "title" => "Tärningsspel",
     ],
+    [
+        "text" => "Movie",
+        "url" => "movie",
+        "title" => "Filmer",
+    ],
 ];

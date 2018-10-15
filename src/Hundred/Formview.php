@@ -10,8 +10,6 @@
  */
 namespace Guni\Hundred;
 
-use Anax\View\Url;
-
 /**
  * Class Formview that creates various forms for the view
  */

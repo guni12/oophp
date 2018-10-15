@@ -10,7 +10,7 @@ Denna webbplatsen är en del av kursen [oophp](https://dbwebb.se/kurser/oophp). 
 
 Naturen är en viktig del av mitt liv och balanserar livet framför skärmen.
 
-[FIGURE src=image/gotland.jpg?w=300 caption="Blåeld. Och elbilen strax bakom."]
+[FIGURE src="cimage/img.php?src=gotland.jpg&w=300" caption="Blåeld. Och elbilen strax bakom."]
 
 Länka till [dbwebb kursrepot på GitHub](https://github.com/dbwebb-se/oophp).
 

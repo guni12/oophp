@@ -178,7 +178,6 @@ $app->router->any(["GET", "POST"], "gissa/session", function () use ($app) {
     $res = null;
     try {
         if (isset($_POST["doGuess"])) {
-            echo "Ja";
             $res = $game->makeGuess($guess);
         }
     } catch (GuessException $e) {

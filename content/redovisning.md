@@ -83,8 +83,88 @@ Jag har 100% kodtäckning, men min `Hundred` vill bli för lång. Jag gjorde en 
 Kmom05
 -------------------------
 
-Här är redovisningstexten
+Detta kursmoment blev mycket omfattande för mig av olika skäl.
 
+Först förstod jag bättre att utnyttja `$app` och fixa länkar utifrån `$app`. Ja att `$app` i princip är `$di`. Inte mycket behövde då vara kvar i route. Jag gjorde en ny klass och förlorade all testbarhet. Mina route-funktioner returnerade ju ingenting.
+
+Till att börja med skickade jag med hela `$app` till olika funktioner, men fick bättre testbarhet när jag bytte till att bara skicka med `\Anax\Database\Database`.
+
+Då och då behöver jag kontrollera superglobala variabler. Sebastian Bergmann och Stackoverflow hjälpte mig vidare:
+
+* [https://github.com/sebastianbergmann/phpunit/issues/705](https://github.com/sebastianbergmann/phpunit/issues/705)
+* [https://stackoverflow.com/questions/30123803/setting-post-for-filter-input-arrayinput-post-in-phpunit-test](https://stackoverflow.com/questions/30123803/setting-post-for-filter-input-arrayinput-post-in-phpunit-test)
+
+Och en början till förståelse om mockobjekt har jag fått härifrån: [https://jtreminio.com/blog/unit-testing-tutorial-part-iv-mock-objects-stub-methods-and-dependency-injection/](https://jtreminio.com/blog/unit-testing-tutorial-part-iv-mock-objects-stub-methods-and-dependency-injection/)
+
+
+`var_dump` på mock-objektet visar att det innehåller alla ursprungliga funktioner. Intressant och hjälper mig vidare. Den returnerar null och det gäller att tänka ut vad man vill testa egentligen. Här har jag mer att lära.
+
+När jag skulle testa mina databas-funktioner uppträdde många problem med min utvecklingsmiljö. Jag hade nöjt mig med att ha xampp i windows-delen och inte installera klart apache i wsl-delen. Nu gjorde jag detta och fick en hel massa konflikter med dubbla processer.
+
+Mödosamt lyckades jag få ordning på detta. Först fick jag döda apache-processen som jag inte riktigt nådde med `kill -9 $(pidof apache2)`
+
+Ett nytt portnummer till phpmyadmin i xampp-delen fick jag hjälp med härifrån: [https://stackoverflow.com/questions/32173242/conflicting-ports-of-mysql-and-xampp](https://stackoverflow.com/questions/32173242/conflicting-ports-of-mysql-and-xampp)
+
+Porten behövde sättas på flera ställen och det tog ett tag innan jag förstod var och hur.
+`mysqld.exe: Table '.\mysql\user' is marked as crashed and should be repaired`
+
+`As Apache port, we also can NOT change the MySQL port through the XAMPP Control Panel, to change it we have to edit MySQL configuration file.`
+
+Jag behövde sätta porten i - `my.ini`
+
+`xampp>phpMyAdmin config.inc.php $cfg['Servers'][$i]['host'] = '127.0.0.1:3307';`
+
+och i `php.ini` `mysqli.default_port=3307`
+
+Härefter kunde jag ändå inte nå mysql: 
+
+`SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it.`
+
+Inget svar fanns i `mysql_error.log`
+
+Slutligen behövde jag ha porten med i dsn-variablerna också: 
+
+`"dsn" => "mysql:host=127.0.0.1;`<span class ="red">`port=3307;`</span>`dbname=oophp;"`, och Voila!
+
+Hädanefter måste jag komma ihåg detta!!!
+
+Det positiva med detta är att jag nu har två operativ-system i ett, mer fullt ut. Jag bytte port på localhost i wsl också och kan verkligen kolla utfall i båda varianterna. Riktigt bra!
+
+
+Jag har lagt mitt huvudfokus på testning eftersom jag vill försöka bli bättre på dessa. Mitt tärningsspel har drygt 98% kodtäckning och det är en if-sats som förstör alltihop.
+
+`if ($average > 3.5 && $this->dices > 2)` är svår att kontrollera och går igenom ibland och blir rött ibland. Jag har inte kommit på lösningen med den trots
+
+* [https://stackoverflow.com/questions/18741147/how-to-unit-test-function-with-some-randomness](https://stackoverflow.com/questions/18741147/how-to-unit-test-function-with-some-randomness)
+* [https://softwareengineering.stackexchange.com/questions/147134/how-should-i-test-randomness](https://softwareengineering.stackexchange.com/questions/147134/how-should-i-test-randomness)
+* [https://media.readthedocs.org/pdf/phpunit/latest/phpunit.pdf](https://media.readthedocs.org/pdf/phpunit/latest/phpunit.pdf)
+
+Vid databastesningen märkte jag att sqlite inte gillar autoincrement, därför fick jag ha olika sql-inmatning för att skapa tabellerna. Efter tilldelning av rättigheter till databas test med test/test så fungerar phpunit lokalt också på mysql, men jag väljer sqlite som standard. Mysql-alternativet finns med i testfilerna, fast avmarkerat.
+
+Lokal mysql-adress för mig är: `$mysql  = "c:/xampp/mysql/bin/mysql.exe";`
+
+För att kunna reset-a databasen lokalt behövde jag åter se till att portnumret skickades med
+
+`--host=127.0.0.1 --port=3307`
+
+Jag försökte förstå att rendera config-filen för databas-inlogg etc, men hittade inga publika getters för detta. För att ha tillgång till uppgifterna lade jag dem nu i functions.php, fast en liten sidofil som jag kallar för `secret.php` och som jag hoppas inte skickas med till github.
+
+Det blir felmeddelande i mitt fall - `exit status 127` om jag inte ställer om till unix vid reset test. Jag gjorde en funktion för detta:
+
+`isUnix() ? "/usr/bin/mysql" : "c:/xampp/mysql/bin/mysql.exe";`
+
+Sass väljer att ha två stegs indentering, vilket stylelint klagade på. Jag har mycket lite style så det gick att rätta med `replace`, men jag tror jag framöver kommer att stå fast vid less.
+
+Publiceringen till skolans server gav mig problem med `Disk quota exceeded (122)`, men det finns en bra tråd för detta på forumet.
+
+Efter att ha gjort en routefil `movie.php` som ligger under `/route` så testade jag att göra en `MovieController`. Variadic-funktionen förenklar mycket. Däremot har jag inte kommit på hur jag ska testa denna klass ännu. Det är mitt sätt att skicka med mockade klasser som inte stämmer: `Trying to get property of non-object`, så jag hoppar över den just nu. Övriga movie-klasser har 100% täckning, men denna drar ner siffrorna.
+
+<h5>Min implementation</h5>
+
+
+Förutom grundfunktionerna kan man återställa databasen. På studentservern lyckades jag inte göra det via kommando. Jag vet inte om det är tänkt att man ska kunna göra det utan att vara root. Men jag hittade inte heller rätt sökväg till mysql där. Istället har jag gjort en serie vanliga sql-frågor till databasen som läses ifrån en fil. (Och för att dessa ska fungera med testning har jag gjort en egen fil till min sqlite::memory.)
+
+Sortering och paginering finns också, liksom cimage. Däremot har jag hoppat över login-funktioner eftersom jag gjort sådana i andra kursmoment. Och återkommer kanske till detta i slutuppgiften.
 
 
 Kmom06

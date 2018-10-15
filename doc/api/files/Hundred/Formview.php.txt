@@ -18,7 +18,6 @@ class Formview
     /**
      * Constructor for the formview
      */
-
     public function __construct()
     {
     }
@@ -31,7 +30,7 @@ class Formview
     public function getStart()
     {
         $html = <<<EOD
-    <input type="submit" name="start" value="Högst kast börjar">
+<input type="submit" name="start" value="Högst kast börjar">
 EOD;
         return $html;
     }
