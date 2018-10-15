@@ -1,7 +1,10 @@
 Revision history
 ===================
 
+v5.0.0 (2018-10-15)
+--------------------
 
+* Commit of kmom05. PDO stuff.
 
 
 

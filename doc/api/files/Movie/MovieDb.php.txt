@@ -1,0 +1,198 @@
+<?php
+/**
+ * Class MovieDb
+ *
+ * @package     Movie
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (14-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
+namespace Guni\Movie;
+
+/**
+ * Showing off a standard class with methods and properties.
+ */
+class MovieDb
+{
+    /**
+     * @var string $button The navigationlinks for our movie widgets;
+     */
+    private $buttons;
+
+
+    /**
+     * Constructor to initiate the object with $buttons.
+     *
+     */
+    public function __construct()
+    {
+        $top = new Buttons();
+        $this->buttons = $top->getButtons();
+    }
+
+
+    /**
+     * Collects all movies from database movie
+     *
+     * @param \Anax\Database\Database $db    database service.
+     *
+     * @return object $res;
+     */
+    public function allMovies(\Anax\Database\Database $db)
+    {
+        $db->connect();
+        $sql = "SELECT * FROM movie;";
+        $res = $db->executeFetchAll($sql);
+        return $res;
+    }
+
+
+    /**
+     * Collects movies by id and title from database movie
+     *
+     * @param \Anax\Database\Database $db    database service.
+     *
+     * @return object $res;
+     */
+    public function getAllByIdTitle(\Anax\Database\Database $db)
+    {
+        $db->connect();
+        $sql = "SELECT id, title FROM movie;";
+        $res = $db->executeFetchAll($sql);
+        return $res;
+    }
+
+
+    /**
+     * Collects movies by year from database movie
+     *
+     * @param \Anax\Database\Database $db    database service
+     * @param int $year1 Search films produced from
+     * @param int $year2 Search films produced to
+     *
+     * @return object $res;
+     */
+    public function yearSearch(\Anax\Database\Database $db, int $year1 = null, int $year2 = null)
+    {
+        $res = null;
+
+        $db->connect();
+        if ($year1 || $year2) {
+            if ($year1 && $year2) {
+                $sql = "SELECT * FROM movie WHERE year >= ? AND year <= ?;";
+                $res = $db->executeFetchAll($sql, [$year1, $year2]);
+            } elseif ($year1) {
+                $sql = "SELECT * FROM movie WHERE year >= ?;";
+                $res = $db->executeFetchAll($sql, [$year1]);
+            } elseif ($year2) {
+                $sql = "SELECT * FROM movie WHERE year <= ?;";
+                $res = $db->executeFetchAll($sql, [$year2]);
+            }
+        }
+        return $res;
+    }
+
+
+
+    /**
+     * Collects movies by title from database movie
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param string                  $title The title of the movie
+     *
+     * @return object $res;
+     */
+    public function titleSearch(\Anax\Database\Database $db, $title = null)
+    {
+        if ($title) {
+            $res = $this->getAllbyTitle($db, $title);
+            return $res;
+        }
+        return null;
+    }
+
+
+
+    /**
+     * Collects movies from database movie where title contains ?
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param string $title   the searchstring
+     *
+     * @return object $res | null;
+     */
+    public function getAllbyTitle(\Anax\Database\Database $db, $title = null)
+    {
+        $db->connect();
+        if ($title) {
+            $sql = "SELECT * FROM movie WHERE title LIKE ?;";
+            $res = $db->executeFetchAll($sql, [$title]);
+            return $res;
+        }
+        return null;
+    }
+
+
+    /**
+     * Updates a movie by values
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param array   $values the columns to update
+     *
+     * @return void;
+     */
+    public function updateMovie(\Anax\Database\Database $db, $values = [])
+    {
+        $sql = "UPDATE movie SET title = ?, year = ?, image = ? WHERE id = ?;";
+        $db->execute($sql, $values);
+    }
+
+
+    /**
+     * Inserts a new movie by values
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param array   $values the columns to insert
+     *
+     * @return int last inserted id;
+     */
+    public function insertMovie(\Anax\Database\Database $db, $values = [])
+    {
+        $sql = "INSERT INTO movie (title, year, image) VALUES (?, ?, ?);";
+        $db->execute($sql, $values);
+        return $db->lastInsertId();
+    }
+
+
+    /**
+     * Find and update a movie by id
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param string  $movieId the id to update
+     *
+     * @return object $movie the current updated movie;
+     */
+    public function updateById(\Anax\Database\Database $db, $movieId)
+    {
+        $sql = "SELECT * FROM movie WHERE id = ?;";
+        $movie = $db->executeFetchAll($sql, [$movieId]);
+        return $movie;
+    }
+
+
+    /**
+     * Deletes a movie by id
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param string  $movieId the id to delete
+     *
+     * @return void;
+     */
+    public function deleteById(\Anax\Database\Database $db, $movieId)
+    {
+        $sql = "DELETE FROM movie WHERE id = ?;";
+        $db->execute($sql, [$movieId]);
+    }
+}
+

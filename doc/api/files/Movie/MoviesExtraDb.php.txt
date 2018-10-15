@@ -1,0 +1,155 @@
+<?php
+/**
+ * Class MoviesExtraDb
+ *
+ * @package     Movie
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (14-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
+namespace Guni\Movie;
+
+/**
+ * Showing off a standard class with methods and properties.
+ */
+class MoviesExtraDb
+{
+    /**
+     * @var string $button The navigationlinks for our movie widgets;
+     */
+    private $buttons;
+
+    /**
+     * @var array $databaseConfig settings for the database;
+     */
+    private $databaseConfig;
+
+
+    /**
+     * Constructor to initiate the object with $buttons.
+     *
+     */
+    public function __construct()
+    {
+        $top = new Buttons();
+        $this->buttons = $top->getButtons();
+        $this->databaseConfig = getSecrets();
+    }
+
+
+    /**
+     * Collects all movies from sqlfile and resets database movie
+     *
+     * @return string $output;
+     */
+    public function makeReset()
+    {
+        $output = "";
+        $file = realpath(__DIR__ . "/../..") . "/sql/movie/setup_clean.sql";
+        $mysql  = isUnix() ? "/usr/bin/mysql" : "c:/xampp/mysql/bin/mysql.exe";
+        $output = null;
+
+        // Extract hostname and databasename from dsn
+        $dsnDetail = [];
+        preg_match("/mysql:host=(.+);port=([^;.]+);dbname=([^;.]+)/", $this->databaseConfig["dsn"], $dsnDetail);
+        $host = $dsnDetail[1];
+        $port = $dsnDetail[2];
+        $database = $dsnDetail[3];
+        $login = $this->databaseConfig["login"];
+        $password = $this->databaseConfig["password"];
+
+        $command = "$mysql --host={$host} --port={$port} -u{$login} -p{$password} $database < $file 2>&1";
+        $showcommand = getCommand($mysql, $file);
+        $output = [];
+        $status = null;
+        exec($command, $output, $status);
+        $output = "<p>The command was: <code>$showcommand</code>.<br>The command exit status was $status."
+            . "<br>The output from the command was:</p><pre>"
+            . print_r($output, 1);
+
+
+        return $output;
+    }
+
+
+    /**
+     * Collects all movies from sqlfile and resets database movie
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param file $file A file containing sql-queries to reset a database
+     * @param int $size The size of sql-querie for create table
+     *
+     * @return string $output;
+     */
+    public function makeResetbth(\Anax\Database\Database $db, $file, $size = 464)
+    {
+        $db->connect();
+
+        $first = "DROP";
+        $next = "CREATE TABLE";
+        $del = "DELETE";
+        $ins = "INSERT";
+        $sel = "SELECT";
+
+        $contents = file_get_contents($file);
+        $drop = substr($contents, strpos($contents, $first), 29);
+
+        $create = substr($contents, strpos($contents, $next), $size);
+
+        $delete = substr($contents, strpos($contents, $del), 21);
+
+        $insert = substr($contents, strpos($contents, $ins), 324);
+
+        $select = substr($contents, strpos($contents, $sel), 22);
+
+        $output = [];
+
+        $db->execute($drop);
+        $db->execute($create);
+        $db->execute($delete);
+        $db->execute($insert);
+        $output = $db->executeFetchAll($select);
+        $output = json_encode($output, JSON_PRETTY_PRINT);
+        return "<pre>" . $output . "</pre>";
+    }
+
+
+    /**
+     * Get nr of movies in our collection
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param int $hits                      nr of items to show
+     *
+     * @return int nr of movies;
+     */
+    public function getMax(\Anax\Database\Database $db, $hits)
+    {
+        $db->connect();
+
+        $sql = "SELECT COUNT(id) AS max FROM movie;";
+        $max = $db->executeFetchAll($sql);
+        $max = $max ? ceil($max[0]->max / $hits) : 1;
+        return $max;
+    }
+
+
+    /**
+     * Get all movies ordered by
+     *
+     * @param \Anax\Database\Database $db    database service.
+     * @param string $orderBy column to order movies by
+     * @param string $order   asc or desc
+     * @param int    $hits    nr of items to collect
+     * @param int    $offset  start collect from item
+     *
+     * @return object $resultset the chosen items to show;
+     */
+    public function getOrderedMovies(\Anax\Database\Database $db, $orderBy, $order, $hits, $offset)
+    {
+        $sql = "SELECT * FROM movie ORDER BY $orderBy $order LIMIT $hits OFFSET $offset;";
+        $resultset = $db->executeFetchAll($sql);
+        return $resultset;
+    }
+}
+
