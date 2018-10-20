@@ -15,6 +15,7 @@
  */
 
 include("secret.php");
+include("functionguni.php");
 
 /**
  * Get value from GET variable or return default value.
@@ -43,10 +44,26 @@ function getGet($key, $default = null)
  */
 function getPost($key, $default = null)
 {
+    if (is_array($key)) {
+        // $key = array_flip($key);
+        // return array_replace($key, array_intersect_key($_POST, $key));
+        foreach ($key as $val) {
+            $post[$val] = getPost($val);
+            if (is_array(getPost($val))) {
+                $temp = "";
+                foreach (getPost($val) as $str) {
+                    $temp .= $str . ",";
+                }
+                $post[$val] = $temp;
+            }
+        }
+        return $post;
+    }
     return isset($_POST[$key])
         ? $_POST[$key]
         : $default;
 }
+
 
 
 
@@ -145,33 +162,19 @@ function mergeQueryString($options, $prepend = "?")
 }
 
 
-/**
- * Find out which operative system
- *
- * @return $options configuration for the database
- */
-function isUnix()
-{
-    return (DIRECTORY_SEPARATOR == '/') ? true : false;
-}
-
 
 /**
- * Function to create links for sorting and keeping the original querystring.
+ * Create a slug of a string, to be used as url.
  *
- * @param string $column the name of the database column to sort by
- * @param string $route  prepend this to the anchor href
+ * @param string $str the string to format as slug.
  *
- * @return string with links to order by column.
+ * @return str the formatted slug.
  */
-function orderby3($column, $route)
+function slugify($str)
 {
-    $asc = $route . "/" . $column . "/asc";
-    $desc = $route . "/" . $column . "/desc";
-    return <<<EOD
-<span class="orderby">
-<a href="$asc">&darr;</a>
-<a href="$desc">&uarr;</a>
-</span>
-EOD;
+    $str = mb_strtolower(trim($str));
+    $str = str_replace(array('å','ä','ö'), array('a','a','o'), $str);
+    $str = preg_replace('/[^a-z0-9-]/', '-', $str);
+    $str = trim(preg_replace('/-+/', '-', $str), '-');
+    return $str;
 }

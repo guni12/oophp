@@ -8,6 +8,11 @@ namespace Anax\View;
 
 // Show incoming variables and view helper functions
 //echo showEnvironment(get_defined_vars(), get_defined_functions());
+$req = $this->di->get("request");
+
+$base = $req->getBaseUrl();
+$favicon = $base . "/" . $favicon;
+$route = $req->getRoute();
 
 $title = ($title ?? "No title") . ($baseTitle ?? " | No base title defined");
 
@@ -27,9 +32,10 @@ $title = ($title ?? "No title") . ($baseTitle ?? " | No base title defined");
         <link rel="stylesheet" type="text/css" href="<?= asset($stylesheet) ?>">
     <?php endforeach; ?>
 <?php endif; ?>
+    <script src="https://use.fontawesome.com/e5579368c4.js"></script>
 
 </head>
-<body>
+<body class="<?= $route ?>">
 
 <!-- header -->
 <?php if (regionHasContent("header")) : ?>

@@ -1,0 +1,229 @@
+<?php
+/**
+ * Class User
+ *
+ * @package     Guni
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (14-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
+namespace Guni\User;
+
+use Anax\DI\DIMagic;
+use Guni\User\UserException;
+
+/**
+ * Page class to handle requests about movies
+ */
+class User
+{
+    /**
+     * @var DIMagic $app the dependency/service container
+     */
+    protected $app;
+
+
+    /**
+     * Constructor to initiate the object with $app.
+     *
+     * @param DIMagic $app    dependency/service container.
+     */
+
+    public function __construct(DIMagic $app = null)
+    {
+        $this->app = $app;
+        $this->user = new UserDb($app);
+    }
+
+
+
+    /**
+     * Extracts all users and sends to view
+     *
+     * @return void;
+     */
+    public function getAll()
+    {
+        $user = $this->app->session->get("user");
+        if ($user && $user["userId"] == 2) {
+            $this->app->page->add("user/index", [
+                "res" => $this->user->allUsers(),
+                "title" => "Alla medlemmar",
+                "bodyclass" => "user",
+            ], "main", 0);
+        } else {
+            $this->notAllowed();
+        }
+    }
+
+
+    /**
+     * Page to show when user is not allowed to content
+     *
+     * @return void;
+     */
+    public function notAllowed()
+    {
+        $this->app->page->add("anax/v2/error/default", [
+            "header" => "<br /><br /><br />403 Åtkomst nekad",
+            "title" => "403",
+            "text" => "Du har inte rättigheter att besöka denna sida.",
+        ]);
+    }
+
+
+    /**
+     * Page to show when user is not allowed to content
+     *
+     * @return void;
+     */
+    public function notExist()
+    {
+        $this->app->page->add("anax/v2/error/default", [
+            "header" => "<br /><br /><br />404 Finns inte",
+            "title" => "404",
+            "text" => "Tyvärr, sidan finns inte.",
+        ]);
+    }
+
+
+    /**
+     * Extracts one user and sends to view
+     *
+     * @param string $value The column id value we are looking for
+     *
+     * @return void;
+     */
+    public function getOne($value)
+    {
+        $user = $this->app->session->get("user");
+        if ($user && ($user["userId"] == 2 || $user["userId"] == $value)) {
+            $this->app->page->add("user/index", [
+                "res" => $this->user->oneUser($value),
+                "title" => "Medlem:",
+            ]);
+        } else {
+            $this->notAllowed();
+        }
+    }
+
+
+    /**
+     * Extracts one user and sends to view
+     *
+     * @param string $value The column id value we are looking for
+     *
+     * @return void;
+     */
+    public function editOne($value)
+    {
+        $user = $this->app->session->get("user");
+        $exist = $this->user->oneUser($value);
+        if ($exist == array()) {
+            $this->notExist();
+        } elseif ($user && ($user["userId"] == 2 || $user["userId"] == $value)) {
+            $this->app->page->add("user/edit", [
+                "res" => $this->user->editUser($value),
+                "title" => "Redigera medlem",
+            ]);
+        } else {
+            $this->notAllowed();
+        }
+    }
+
+
+
+    /**
+     * Check to see if user is member and can login
+     *
+     * @param string $value
+     *
+     * @return void;
+     */
+    public function login()
+    {
+        $res = $this->user->doLogin();
+        $this->app->page->add("user/login", [
+            "message" => $res,
+        ]);
+    }
+
+
+    /**
+     * Check to see if user is member and can login
+     *
+     * @param string $value
+     *
+     * @return void;
+     */
+    public function logout()
+    {
+        $req = $this->app->get("response");
+        $this->app->session->delete("user");
+        $req->redirect("user/login/");
+    }
+
+
+
+    /**
+     * Create a new user
+     *
+     * @return void;
+     */
+    public function createUser()
+    {
+        $res = $this->user->makeUser();
+        $this->app->page->add("user/create", [
+            "title" => "Ny medlem",
+            "res" => $res,
+        ]);
+    }
+
+
+
+    /**
+     * Create a user
+     *
+     * @param string $value the value id to find our user by
+     *
+     * @return void;
+     */
+    public function deleteUser($value)
+    {
+        $user = $this->app->session->get("user");
+        if ($user && ($user["userId"] == 2 || $user["userId"] == $value)) {
+            $this->app->page->add("user/delete", [
+                "title" => "Avsluta medlemsskap",
+                "res" => $this->user->deleteOne($value),
+            ]);
+        } else {
+            $this->notAllowed();
+        }
+    }
+
+
+
+    /**
+     * Resets all users from file sql/user/setup.sql
+     *
+     * @return void;
+     */
+    public function resetUser()
+    {
+        $user = $this->app->session->get("user");
+        if ($user && ($user["userId"] == 2)) {
+            $file = realpath(__DIR__ . "/../..") . "/sql/user/setup.sql";
+            $test = getPost("reset") ? $this->user->makeReset() : "";
+            $test2 = getPost("resetbth") ? $this->user->makeResetbth($file) : "";
+            $output = $test ? $test : $test2;
+            $this->app->page->add("user/reset", [
+                "title" => "Återställ databasen",
+                "output" => $output,
+            ]);
+        } else {
+            $this->notAllowed();
+        }
+    }
+}
+

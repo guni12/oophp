@@ -43,9 +43,38 @@ function getGet($key, $default = null)
  */
 function getPost($key, $default = null)
 {
+    if (is_array($key)) {
+        // $key = array_flip($key);
+        // return array_replace($key, array_intersect_key($_POST, $key));
+        foreach ($key as $val) {
+            $post[$val] = getPost($val);
+            if (is_array(getPost($val))) {
+                $temp = "";
+                foreach (getPost($val) as $str) {
+                    $temp .= $str . ",";
+                }
+                $post[$val] = $temp;
+            }
+        }
+        return $post;
+    }
     return isset($_POST[$key])
         ? $_POST[$key]
         : $default;
+}
+
+
+
+/**
+ * Check if key is set in POST.
+ *
+ * @param mixed $key     to look for
+ *
+ * @return boolean true if key is set, otherwise false
+ */
+function hasKeyPost($key)
+{
+    return array_key_exists($key, $_POST);
 }
 
 
@@ -174,5 +203,67 @@ function orderby3($column, $route)
 <a href="$desc">&uarr;</a>
 </span>
 EOD;
+}
+
+
+
+/**
+ * Create a slug of a string, to be used as url.
+ *
+ * @param string $str the string to format as slug.
+ *
+ * @return str the formatted slug.
+ */
+function slugify($str)
+{
+    $str = mb_strtolower(trim($str));
+    $str = str_replace(array('å','ä','ö'), array('a','a','o'), $str);
+    $str = preg_replace('/[^a-z0-9-]/', '-', $str);
+    $str = trim(preg_replace('/-+/', '-', $str), '-');
+    return $str;
+}
+
+
+/**
+ * Checks if string contains symbol for more.
+ *
+ * @param string $str the string to check.
+ *
+ * @return bool.
+ */
+function haveMore($str)
+{
+    $devide = "<!--more-->";
+    if (strpos($str, $devide) !== false) {
+        return true;
+    }
+    return false;
+}
+
+
+
+/**
+ * Create a substr of a string, to be used as intro to text.
+ *
+ * @param string $str  the string to format as substr.
+ * @param string $base basepath to page
+ * @param string $slug slug to add to path
+ *
+ * @return str the substr.
+ */
+function preMore($str, $base, $slug = null)
+{
+    $path = $base . "post/variadic/all/" . $slug;
+    $devide = "<!--more-->";
+    if (haveMore($str)) {
+        $arr = explode($devide, $str);
+        $arrow = <<<EOD
+<span class="orderby">
+<a href="$path">&rarr;</a>
+</span>
+EOD;
+        return $arr[0] . $arrow;
+    }
+    return $str;
 }
 

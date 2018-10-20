@@ -90,49 +90,35 @@ EOD;
     }
 
 
+
     /**
-     * Test getting a server value.
+     * Test getting many posts values.
      */
-    public function testQueryServer()
+    public function testGetPostArray()
     {
-        $_SERVER['REQUEST_METHOD'] = 'QUERY_STRING';
-        $_SERVER['QUERY_STRING'] = "";
-        $query = ["orderby" => "title", "order" => "asc"];
-        $exp = parse_str($_SERVER['QUERY_STRING'], $query);
-        $res = getServerParse($_SERVER['QUERY_STRING'], $query);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = array(
+            'movieTitle' => "Bråkmakargatan",
+            'movieId' => 7,
+            'movieProducer' => "Film i Väst",
+            'staff' => ["Hanna", "Erik"]
+        );
+        $key = ["movieTitle", "movieId", "movieProducer", "staff"];
+        $exp = ['movieTitle' => "Bråkmakargatan",'movieId' => 7,'movieProducer' => "Film i Väst", 'staff' => "Hanna,Erik,"];
+        $res = getPost($key);
         $this->assertEquals($exp, $res);
     }
 
 
 
     /**
-     * Test getting a server value.
+     * Test to slugify a text
      */
-    public function testGetBthCommand()
+    public function testSlugify()
     {
-        $_SERVER["SERVER_NAME"] = "www.student.bth.se";
-        $mysql = "mysql";
-        $file = "file";
-        $exp = "$mysql --host=blu-ray.student.bth.se -usecret -psecret guni12 < $file 2>&1";
-        $res = getCommand($mysql, $file);
-        $this->assertEquals($exp, $res);
-    }
-
-
-    /**
-     * Test string for ordering links with merge.
-     */
-    public function testOrderby3()
-    {
-        $asc = "paginate/title/asc";
-        $desc = "paginate/title/desc";
-        $exp = <<<EOD
-<span class="orderby">
-<a href="$asc">&darr;</a>
-<a href="$desc">&uarr;</a>
-</span>
-EOD;
-        $res = orderby3("title", "paginate");
+        $str = "En härlig dag";
+        $exp = "en-harlig-dag";
+        $res = slugify($str);
         $this->assertEquals($exp, $res);
     }
 }

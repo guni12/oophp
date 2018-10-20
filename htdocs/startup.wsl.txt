@@ -1,0 +1,5 @@
+sudo service apache2 start
+// vid behov
+sudo service apache2 restart
+
+sudo service mysql start

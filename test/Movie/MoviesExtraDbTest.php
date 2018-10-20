@@ -77,7 +77,6 @@ class MoviesExtraDbTest extends TestCase
         "id": "5",\n
 EOD;
         $file = __DIR__ . "/../Mock/sqltext.sql";
-        var_dump($file);
         $res = $mdb->makeResetbth($this->db, $file, 400);
         $this->assertContains($exp, $res);
     }

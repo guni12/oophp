@@ -170,9 +170,53 @@ Sortering och paginering finns också, liksom cimage. Däremot har jag hoppat ö
 Kmom06
 -------------------------
 
-Här är redovisningstexten
+Eftersom jag går webbutvecklingskurserna i lite egen ordning så har jag redan gjort "Ramverk 1" och därigenom stött på filtrering med textfilter, paginering etc. Men det var mycket nytt för mig då och jag får fler saker att falla på plats nu genom denna kurs. 
+
+<h4>Att jobba med klassen för filtrering och formattering</h4>
+
+Det blev mycket tydligare för mig hur olika filter är användbara till olika saker. Jag har också upptäckt att det finns mycket bra hjälpmedel under `vendor/anax`. Om man t.ex. installerar `textfilter` så finns det många bra tips och funktioner att sätta sig in i, på ett enkelt sätt. Fler shortcodes, t.ex. än när jag gjorde "Ramverk 1", om jag inte har fel.
+
+<h4>Hur känner du rent allmänt för den koden du skrivit?</h4>
 
 
+Som vanligt har jag en tendens att skriva för mycket/lång kod. Där har jag mycket att förbättra, så att jag skriver mer effektivt från början. Jag har refakturerat, men känner på mig att går att skriva mycket mer minimalistiskt och smart. För att få ner `UserController` lade jag logout i `rescuer.php` rakt över basroute. Och återställningen av databas skickades till `AdminController`. 
+
+Jag hade kunnat lägga in `di`-beroenden, t.ex. på min `User`-klass, men valde att låta bli och istället se hur jag kunde nå olika delar genom att hänvisa till dem under `namespace` eller genom att lägga saker i `session`.
+
+
+<h4>Webbplatsen nu</h4>
+
+Jag valde att låta den oinloggade besökaren få tillgång till en sida/flik av typ `page` och en annan av typ `post`. 
+
+Om man blir medlem kan man skriva till bloggen, men inga webbsidor. Medlemmar kan redigera sin egen text, välja när den ska publiceras och ändra detta. Hen kan också slänga sin text och har då inte längre tillgång till den.
+
+När man blir inloggad kommer man till "sin sida" där man kan ändra lösenord, avsluta medlemsskap och få tillgång till saker som erbjudanden. Härifrån kan man gå vidare och skapa innehåll. Man kan också se sina texter, även opublicerade, men inte slängda.
+
+Admin kan skriva alla typer av sidor och lägga tillbaka slängda sidor och avslutade medlemsskap. När admin loggar in får hen tillgång till fliken "Admin". Admin har dessutom tillgång till mer information (än vanlig medlem) ifrån medlemssidan.
+
+Om en sida inte finns får man en `404`-sida och om man inte har tillgång till sidan får man ett `403`-svar.
+
+Det är mycket att tänka på så att allt fungerar som tänkt. När en medlem blir "avslutad", men ändå finns kvar i databasen gäller det att hen inte kan bli inloggad ändå, eller att hen faktiskt blir avslutad från sessionen etc. Det är lätt att missa saker, tycker jag. Och tidskrävande att testa allt. Med varje ny sak som går att göra tillkommer fel på det som tidigare var rätt. Men det är väl detta man ska bli mer proffsig på.
+
+Jag har haft stor nytta av att kunna återskapa databas-tabellerna snabbt. Liksom återigen dev-sidan där man kan se vad som finns i sessionen. Jag provade att skicka fler saker till `Page` som t.ex. att påverka header. Genom att lägga till 403 efter en tom array i `page->render()` ser man att sidan faktiskt får status 403. Men jag har bara använt det på ett ställe, det kanske kan göras mera flexibelt.
+
+Jag har också lagt till klass till `body` och gjorde detta från `layout.php` eftersom jag inte hittade hur jag skulle kunna påverka config med en dynamisk variabel.
+
+Förutom doe/doe och admin/admin händer det att jag lägger in tester, t.ex. Pelle/Pelle. Om man vill nå också den medlemmen.
+
+<h4>Klasstruktur och kodstruktur</h4>
+
+Jag har skiljt på Bloggar, Sidor och Admin och låtit dessa få varsina uppsättningar controllerklass och egen klass. Dessa tillgodoses sedan genom en gemensam databasklass - `Content.php`. Databasklassen och Adminklassen måste få veta vilken typ av text det handlar om.
+
+Jag valde att inte använda route till bloggarna, bara slug och tvärtom för webbsidorna. Om två slugs eller två paths är lika läggs datum till på slutet.
+
+En ingress av varje blogg visas tillsammans med en pil till hela inlägget. Detta löses genom en funtion i `function.php` och ett tillagt argument `/all`. Om man är medlem kan man se alla sina egna blogg-inlägg. Det blir många ternary assignments och kan säkert göras annorlunda genom att skapa innehållet på annan plats än under `view`.
+
+Blogginläggen presenteras med sin författare. Detta löses genom en sql-sats som förbinder tabellerna `user` och `content`.
+
+Admins funktioner ska man inte kunna nå om man inte är admin. En funktion i `Guni\User\User.php` lånas in för detta.
+
+Denna gången har jag hoppat över att enhetstesta särskilt mycket. För att hålla det igång uppdaterade jag min `function.php`.
 
 Kmom07-10
 -------------------------

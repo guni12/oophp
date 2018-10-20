@@ -1,0 +1,126 @@
+<?php
+/**
+ * Class Page
+ *
+ * @package     Guni
+ * @subpackage  Redovisa
+ * @author      Gunvor Nilsson gunvor@behovsbo.se
+ * @version     v.0.1 (14-10-2018)
+ * @copyright   Copyright (c) 2018, Molndal
+ */
+namespace Guni\Content;
+
+use Anax\DI\DIMagic;
+use Guni\User\User;
+
+/**
+ * Page class to handle requests about movies
+ */
+class Page
+{
+    /**
+     * @var DIMagic $app the dependency/service container
+     */
+    protected $app;
+
+
+    /**
+     * @var Content $cont Connection to the database
+     */
+    private $cont;
+
+
+    /**
+     * @var User $user Connection to userfunctions
+     */
+    private $user;
+
+
+    /**
+     * Constructor to initiate the object with $app.
+     *
+     * @param DIMagic $app    dependency/service container.
+     */
+
+    public function __construct(DIMagic $app = null)
+    {
+        $this->app = $app;
+        $this->cont = new Content($app);
+        $this->user = new User($app);
+    }
+
+
+    /**
+     * Extracts all pages and sends to view
+     *
+     * @return void;
+     */
+    public function getAll()
+    {
+        $this->app->page->add("content/index", [
+            "res" => $this->cont->allItems("page"),
+            "title" => "Sidor",
+        ]);
+    }
+
+
+    /**
+     * Extracts one page and sends to view
+     *
+     * @param string $value The column value we are looking for
+     *
+     * @return void;
+     */
+    public function getOne($value)
+    {
+        $res = $this->cont->oneItem($value, "page");
+        if (!$res) {
+            $this->app->page->add("anax/v2/error/default", [
+                "header" => "HTTP/1.0 404 Not Found",
+                "title" => "404",
+                "text" => "Sidan finns inte",
+            ]);
+        } else {
+            $this->app->page->add("content/page", [
+                "res" => $res,
+                "title" => $res[0]->title,
+            ]);
+        }
+    }
+
+
+
+    /**
+     * Edit one page
+     *
+     * @param string $value The column value we are looking for
+     *
+     * @return void;
+     */
+    public function editOne($value)
+    {
+        $res = $this->cont->editItem($value);
+        $this->app->page->add("content/edit", [
+            "res" => $res,
+            "title" => $res->title,
+        ]);
+    }
+
+
+
+    /**
+     * Delete one blogpost
+     *
+     * @param string $value The column value we are looking for
+     *
+     * @return void;
+     */
+    public function deleteOne($value)
+    {
+        $res = $this->cont->deleteItem($value);
+        $this->app->page->add("content/delete", [
+            "res" => $res,
+            "title" => $res->title,
+        ]);
+    }
+}
